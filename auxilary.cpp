@@ -45,7 +45,7 @@ std::string getMIME(std::string f_name){
         }
         iter++;
     }
-    if(ext.empty()){return "text/plain";}
+    if(ext.empty()){return "text/html";}
     else{
         if(doBinary(f_name))
             return "image/"+ext;

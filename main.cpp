@@ -49,7 +49,6 @@ int main(int argc, char** argv){
 		read(new_socket, buffer, 30000);
 
 		std::string packet = packet_util(buffer).http_response();
-		std::cout << ">>> RESPONSE PACKET\n" << packet << std::endl;
 		write(new_socket, (char*)packet.c_str(), (int)packet.size());
 		printf("---------- MESSAGE SENT -----------\n");
 		close(new_socket);

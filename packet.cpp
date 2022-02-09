@@ -3,7 +3,6 @@
 
 packet_util::packet_util(char* buffer){
     this->in_buffer = (std::string)buffer;
-
     puff();
 }
 
@@ -22,6 +21,8 @@ void packet_util::puff(){
 
     // "web_content" is root folder for files
     ss >> item;
+    //if just url still send home page
+    if(item == "/"){item = "/index.html";}
     packet.uri = "web_content"+item;
 
     ss >> item;
@@ -39,13 +40,15 @@ void packet_util::puff(){
 
 void packet_util::packet_builder(struct http_request packet){
     if(!fileExists(packet.uri)){
-        fill("",NOT_FOUND,"");
+        std::string cont = "<html><body><h1>404 Page does not Exist</h1></body></html>";
+        fill("",NOT_FOUND,cont);
     }
     else{
         if(pathAuthorized(packet.uri)){
             fill(packet.uri, OK, getContent(packet.uri));
         }
         else{
+            std::string cont = "<html><body><h1>401 Page is not Authorized</h1></body></html>";
             fill("", UNAUTH, "");
         }
     }
@@ -66,6 +69,13 @@ void packet_util::print_request(struct http_request req){
 
 std::string packet_util::http_response(){
     std::stringstream ss;
+    if(pkg.content_type.substr(0,5)=="image"){
+        std::cout << ">>> RESPONSE PACKET\n";
+        std::cout << pkg.http_v << " " << pkg.response_code << " " << pkg.response_def << "\nContent-Type: " << pkg.content_type << "\nContent-Length: " << pkg.content_length << "\nContent:\n\nIMAGE DATA\n";
+    }else{
+        std::cout << ">>> RESPONSE PACKET\n";
+        std::cout << pkg.http_v << " " << pkg.response_code << " " << pkg.response_def << "\nContent-Type: " << pkg.content_type << "\nContent-Length: " << pkg.content_length << "\nContent:\n\n" << pkg.content << std::endl;
+    }
     ss << pkg.http_v << " " << pkg.response_code << " " << pkg.response_def << "\nContent-Type: " << pkg.content_type << "\nContent-Length: " << pkg.content_length << "\nContent:\n\n" << pkg.content;
     return ss.str();
 }
