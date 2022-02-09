@@ -1,93 +1,73 @@
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
-#include <string>
-#include <cstring>
+
+
+
 #include "packet.hpp"
+#include "auxilary.hpp"
 
 packet_util::packet_util(char* buffer){
-    this->in_content = (std::string)buffer;
-    model();
+    this->in_buffer = (std::string)buffer;
+    //puff();
 }
 
-void packet_util::model(){
-    std::stringstream ss(this->in_content);
+void packet_util::puff(){
+    struct http_request packet;
+
+    std::stringstream ss(this->in_buffer);
+
     std::string item;
+    ss >> item;
+    
+    if(item == "GET"){ packet.method = GET; }
+    else if(item == "POST"){ packet.method = POST; }
+    else if(item == "HEAD"){ packet.method = HEAD; }
+    else{ packet.method = UNKNOWN; }
 
-    std::vector<int> tokens;
-    std::vector<std::string> words;
+    ss >> item;
+    item.erase(0,1);
+    packet.uri = item;
 
-    while(ss >> item){
-        if(item == "GET"){
-            tokens.insert(tokens.begin(),METHOD);
-            words.insert(words.begin(), item);
+    ss >> item;
+    packet.http_v = item;
+
+    if(packet.method == POST){
+        while(!item.empty()){ss >> item;}
+        while(getline(ss,item)){
+            packet.content.append("\n"+item);
         }
-        else if (item == "Accept:"){
-            tokens.insert(tokens.begin(),MIME);
-            words.insert(words.begin(), item);
+    }
+    //print_request(packet);
+    packet_builder(packet);
+}
+
+void packet_util::packet_builder(struct http_request packet){
+    if(!fileExists(packet.uri)){
+        fill("",NOT_FOUND,"");
+    }
+    else{
+        if(pathAuthorized(packet.uri)){
+            fill(packet.uri, OK, getContent(packet.uri));
         }
         else{
-            tokens.insert(tokens.begin(),UNKNOWN);
-            words.insert(words.begin(), item);
+            fill("", UNAUTH, "");
         }
     }
-
-    std::string req_file;
-    std::string mime_type;
-    int iter = 0;
-    for(auto &tok : tokens){
-        printf("%d\n", tok);
-        if(tok == METHOD){
-            req_file = words.at(iter-1);
-            //printf("%s\n",(char*)req_file.c_str());
-        }
-        else if(tok == MIME){
-            mime_type = words.at(iter-1);
-            printf("%s\n",(char*)mime_type.c_str());
-        }
-        iter++;
-    }
-    req_file.erase(0,1);
-    fill_packet(req_file, mime_type);
+    //printf(">>> RESPONSE PACKET\n%s %d %s\nContent-Type: %s\nContent-Length: %d\nContent:\n\n%s\n\n",(char*)pkg.http_v.c_str(), pkg.response_code, (char*)pkg.reponsed_def.c_str(),(char*)pkg.content_type.c_str(), pkg.content_length, (char*)pkg.content.c_str());
 }
 
-void packet_util::fill_packet(std::string file_n, std::string mime){
-    std::ifstream in_f;
-    if(doBinary(file_n))
-        in_f.open(file_n, std::ios::out | std::ios::binary);
-    else
-        in_f.open(file_n);
-    std::stringstream buff;
-    buff << in_f.rdbuf();
+void packet_util::fill(std::string uri, int code, std::string content){
+    this->pkg.response_code = code;
+    this->pkg.http_v = "HTTP/1.1";
+    this->pkg.reponsed_def = getCode(code);
+    this->pkg.content_length = (int)content.size();
+    this->pkg.content_type = getMIME(uri);
+    this->pkg.content = content;
+}
 
+void packet_util::print_request(struct http_request req){
+    printf("\n>>> REQUEST PACKET\nMethod: %d\nURI: %s\nHTTP version: %s\nContent: %s\n\n",req.method, (char*)req.uri.c_str(), (char*)req.http_v.c_str(), (char*)req.content.c_str());
+}
+/*
+char* packet_util::http_response(){
     std::stringstream ss;
-    ss << "HTTP/1.1 200 OK\nContent-Type: text/html" /*<< mime*/ << "\nContent-Length: " << (int)buff.str().length() << "\n\n" << buff.str();
-
-    this->out_content = ss.str();
-    
-    in_f.close();
-}
-
-char* packet_util::http_packet(){
-    //std::cout << this->out_content << std::endl;
-    return (char*)this->out_content.c_str();
-}
-
-bool packet_util::doBinary(std::string file_name){
-    std::string exts[4] = {"jpg", "jpeg","png","ico"};
-    std::string ext;
-    int iter = 0;
-    for(auto &ch : file_name){
-        if(ch == '.')
-            ext = file_name.substr(iter,(int)file_name.size()-iter);
-        iter++;
-    }
-    for(auto &s : exts){
-        if(strcmp((char*)s.c_str(),(char*)ext.c_str()) == 0)
-            return true;
-    }
-    return false;
-}
+    //ss << 
+}*/

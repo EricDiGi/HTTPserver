@@ -46,12 +46,10 @@ int main(int argc, char** argv){
 
 		char buffer[30000] = {0};
 		valread = read(new_socket, buffer, 30000);
-
-		std::string packet = packet_util(buffer).http_packet();
-		//printf("%s\n%d/n",(char*)packet.c_str(), (int)packet.size());
-		printf("Content-Length: %d\n", (int)packet.length());
+		packet_util p = packet_util(buffer);
+		//std::string packet = packet_util(buffer).http_response();
 		//printf("%s\n", buffer);
-		write(new_socket, (char*)packet.c_str(), (int)sizeof(packet)*16);
+		write(new_socket, (char*)packet.c_str(), (int)packet.size());
 		printf("---------- MESSAGE SENT -----------\n");
 		close(new_socket);
 	}
