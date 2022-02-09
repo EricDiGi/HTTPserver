@@ -17,7 +17,7 @@ struct http_packet{
     //Status line
     std::string http_v;
     int response_code;
-    std::string reponsed_def;
+    std::string response_def;
     //Header
     std::string content_type;
     int content_length;
@@ -46,7 +46,7 @@ class packet_util{
         void print_request(struct http_request);
     public:
         packet_util(char* buffer);
-        //char* http_response();
+        std::string http_response();
 };
 
 #endif

@@ -10,12 +10,10 @@
 #define PORT 60049
 
 int main(int argc, char** argv){
-	int server_fd, new_socket; long valread;
+	int server_fd, new_socket;
 	struct sockaddr_in address;
 	int address_length = sizeof(address);
-	
-	std::string packet = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 160\n\n<!DOCTYPE html>\n<html>\n<head>\n<title>This is a Web page</title>\n</head>\n<body>\n<h1>This is a cool Webpage!</h1>\n</body>\n</html>";
-	
+
 	if((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0){
 		perror("Socket Error");
 		exit(EXIT_FAILURE);
@@ -45,10 +43,11 @@ int main(int argc, char** argv){
 		}
 
 		char buffer[30000] = {0};
-		valread = read(new_socket, buffer, 30000);
-		packet_util p = packet_util(buffer);
-		//std::string packet = packet_util(buffer).http_response();
-		//printf("%s\n", buffer);
+		
+		read(new_socket, buffer, 30000);
+
+		std::string packet = packet_util(buffer).http_response();
+		std::cout << ">>> RESPONSE PACKET\n" << packet << std::endl;
 		write(new_socket, (char*)packet.c_str(), (int)packet.size());
 		printf("---------- MESSAGE SENT -----------\n");
 		close(new_socket);

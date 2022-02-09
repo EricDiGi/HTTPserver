@@ -32,7 +32,19 @@ std::string getContent(std::string f_name){
 }
 
 std::string getMIME(std::string f_name){
-    return "text/html";
+    std::string ext;
+    int iter = 0;
+    for(auto &ch : f_name){
+        if(ch == '.'){
+            ext = f_name.substr(iter+1,(int)f_name.size()-iter);
+            break;
+        }
+        iter++;
+    }
+    if(ext.empty()){return "text/plain";}
+    else{
+        return "text/"+ext;
+    }
 }
 std::string getCode(int code){
     return code_desc[(code - (code%100))/100][code%100];
