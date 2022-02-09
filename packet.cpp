@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
-
+#include <string>
+#include <cstring>
 #include "packet.hpp"
 
 packet_util::packet_util(char* buffer){
@@ -54,8 +55,11 @@ void packet_util::model(){
 }
 
 void packet_util::fill_packet(std::string file_n, std::string mime){
-    
-    std::ifstream in_f(file_n);
+    std::ifstream in_f;
+    if(doBinary(file_n))
+        in_f.open(file_n, std::ios::out | std::ios::binary);
+    else
+        in_f.open(file_n);
     std::stringstream buff;
     buff << in_f.rdbuf();
 
@@ -70,4 +74,20 @@ void packet_util::fill_packet(std::string file_n, std::string mime){
 char* packet_util::http_packet(){
     //std::cout << this->out_content << std::endl;
     return (char*)this->out_content.c_str();
+}
+
+bool packet_util::doBinary(std::string file_name){
+    std::string exts[4] = {"jpg", "jpeg","png","ico"};
+    std::string ext;
+    int iter = 0;
+    for(auto &ch : file_name){
+        if(ch == '.')
+            ext = file_name.substr(iter,(int)file_name.size()-iter);
+        iter++;
+    }
+    for(auto &s : exts){
+        if(strcmp((char*)s.c_str(),(char*)ext.c_str()) == 0)
+            return true;
+    }
+    return false;
 }
