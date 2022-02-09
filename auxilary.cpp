@@ -23,7 +23,11 @@ bool pathAuthorized(std::string path){
 }
 
 std::string getContent(std::string f_name){
-    std::ifstream f(f_name);
+    std::ifstream f;
+    if(doBinary(f_name))
+        f.open(f_name, std::ios::out | std::ios::binary);
+    else
+        f.open(f_name);
     std::stringstream ss;
     ss << f.rdbuf();
     std::string o = ss.str();
@@ -43,9 +47,28 @@ std::string getMIME(std::string f_name){
     }
     if(ext.empty()){return "text/plain";}
     else{
+        if(doBinary(f_name))
+            return "image/"+ext;
         return "text/"+ext;
     }
 }
 std::string getCode(int code){
     return code_desc[(code - (code%100))/100][code%100];
+}
+
+bool doBinary(std::string f_name){
+    std::string ext;
+    int iter = 0;
+    for(auto &ch : f_name){
+        if(ch == '.'){
+            ext = f_name.substr(iter+1,(int)f_name.size()-iter);
+            break;
+        }
+        iter++;
+    }
+    std::string exts[7] = {"jpg","jpeg", "bmp", "png","tif","tiff","webp"};
+    for(auto &s : exts){
+        if(ext == s){return true;}
+    }
+    return false;
 }

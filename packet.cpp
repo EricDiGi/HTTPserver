@@ -1,11 +1,9 @@
-
-
-
 #include "packet.hpp"
 #include "auxilary.hpp"
 
 packet_util::packet_util(char* buffer){
     this->in_buffer = (std::string)buffer;
+
     puff();
 }
 
@@ -22,9 +20,9 @@ void packet_util::puff(){
     else if(item == "HEAD"){ packet.method = HEAD; }
     else{ packet.method = UNKNOWN; }
 
+    // "web_content" is root folder for files
     ss >> item;
-    item.erase(0,1);
-    packet.uri = item;
+    packet.uri = "web_content"+item;
 
     ss >> item;
     packet.http_v = item;
@@ -35,13 +33,11 @@ void packet_util::puff(){
             packet.content.append("\n"+item);
         }
     }
-    //printf("Constructor\n");
     print_request(packet);
     packet_builder(packet);
 }
 
 void packet_util::packet_builder(struct http_request packet){
-    //printf("Builder\n");
     if(!fileExists(packet.uri)){
         fill("",NOT_FOUND,"");
     }
@@ -53,7 +49,6 @@ void packet_util::packet_builder(struct http_request packet){
             fill("", UNAUTH, "");
         }
     }
-    //printf(">>> RESPONSE PACKET\n%s %d %s\nContent-Type: %s\nContent-Length: %d\nContent:\n\n%s\n\n",(char*)pkg.http_v.c_str(), pkg.response_code, (char*)pkg.response_def.c_str(),(char*)pkg.content_type.c_str(), pkg.content_length, (char*)pkg.content.c_str());
 }
 
 void packet_util::fill(std::string uri, int code, std::string content){

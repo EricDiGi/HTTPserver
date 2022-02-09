@@ -35,6 +35,8 @@ int main(int argc, char** argv){
 		exit(EXIT_FAILURE);
 	}
 	
+	// Multithread from here
+
 	while(1){
 		printf(">>> Waiting for new connection\n");
 		if((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&address_length))<0){
