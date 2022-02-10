@@ -8,6 +8,7 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <mutex>
 
 enum pos {METHOD=11, HOST, AGENT, MIME, LANG, UNKNOWN=-1};
 enum methods {GET=1000, HEAD, POST};
@@ -39,7 +40,7 @@ class packet_util{
     private:
         struct http_packet pkg;
         std::string in_buffer;
-
+        std::mutex lock;
         void puff();
         void packet_builder(struct http_request);
         void fill(std::string, int, std::string);

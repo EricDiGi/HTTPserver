@@ -7,7 +7,7 @@ OBJECTS = $(SRCS: .hpp=.o)
 all: server
 
 server: $(OBJECTS) main.cpp packet.hpp packet.cpp auxilary.hpp auxilary.cpp
-		$(CXX) $(CXXFLAGS) -o $@ $^
+		$(CXX) $(CXXFLAGS) -o $@ $^ -pthread
 
 clean:
 	rm -rf *.dSYM

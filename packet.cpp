@@ -45,7 +45,9 @@ void packet_util::packet_builder(struct http_request packet){
     }
     else{
         if(pathAuthorized(packet.uri)){
+            lock.lock();
             fill(packet.uri, OK, getContent(packet.uri));
+            lock.unlock();
         }
         else{
             std::string cont = "<html><body><h1>401 Page is not Authorized</h1></body></html>";
