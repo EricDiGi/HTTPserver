@@ -28,7 +28,7 @@ void serve(struct new_user* user){
 	struct new_user* nu = user;
 	int id_ = nu->id;
 	int sock = nu->socket;
-	char buffer[30000] = {0};
+	char buffer[1280] = {0};
 
 	while(1){
 		if(read(sock, buffer, 30000) > 0){
@@ -43,7 +43,7 @@ void serve(struct new_user* user){
 	lock.lock();
 	active--;
 	lock.unlock();
-	terminate();
+	std::this_thread::yield();
 }
 
 int main(int argc, char** argv){
