@@ -43,7 +43,8 @@ void serve(struct new_user* user){
 	lock.lock();
 	active--;
 	lock.unlock();
-	std::this_thread::yield();
+	std::terminate();
+	//std::this_thread::yield();
 }
 
 int main(int argc, char** argv){
